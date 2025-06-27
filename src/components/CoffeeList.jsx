@@ -38,7 +38,7 @@ CoffeeList.propTypes = {
       image: PropTypes.string,
     })
   ).isRequired,
-  type: PropTypes.oneOf(['hot', 'iced']),
+  type: PropTypes.oneOf(['hot', 'iced']).isRequired,
 };
 
 export default CoffeeList;
