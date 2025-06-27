@@ -1,3 +1,52 @@
+import React, { useState, useEffect } from 'react';
+import { fetchIcedCoffee } from '../api/coffee-api';
+import Loader from '../components/Loader';
+import CoffeeList from '../components/CoffeeList';
+import './pages.css';
+
+const IcedCoffee = () => {
+  const [coffeeList, setCoffeeList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getIcedCoffee = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const icedCoffee = await fetchIcedCoffee();
+        setCoffeeList(icedCoffee);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getIcedCoffee();
+  }, []);
+
+  return (
+    <div className="container">
+      <h1>Iced Coffee Recipes</h1>
+      {isLoading && <Loader />}
+      {error && (
+        <p className="error-message">
+          Oops! Something went wrong: {error.message}
+        </p>
+      )}
+      {!isLoading && !error && coffeeList.length > 0 && (
+        <CoffeeList coffees={coffeeList} type="iced" />
+      )}
+      {!isLoading && !error && coffeeList.length === 0 && (
+        <p>No iced coffee recipes available.</p>
+      )}
+    </div>
+  );
+};
+
+export default IcedCoffee;
+
 // import React, { useState, useEffect } from 'react';
 // import { useSearchParams } from 'react-router-dom';
 // import { searchMovies } from '../api/themoviedb-api';

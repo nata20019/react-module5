@@ -1,3 +1,79 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { getCoffeeDetails } from 'api/coffee-api';
+import Loader from '../components/Loader';
+import './pages.css';
+
+const CoffeeDetails = () => {
+  const { type, coffeeId } = useParams();
+  const [coffee, setCoffee] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const location = useLocation();
+
+  const backLinkHref = location.state?.from ?? '/';
+
+  useEffect(() => {
+    if (!type || !coffeeId) return;
+
+    const fetchDetails = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const details = await getCoffeeDetails(type, coffeeId);
+        setCoffee(details);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDetails();
+  }, [type, coffeeId]);
+
+  if (isLoading) return <Loader />;
+  if (error)
+    return (
+      <p className="error-message">
+        Oops! Something went wrong: {error.message}
+      </p>
+    );
+  if (!coffee) return null;
+
+  return (
+    <div className="container">
+      <Link to={backLinkHref} className="go-back-btn">
+        Go back
+      </Link>{' '}
+      {/* Використовуємо Link */}
+      <div className="coffee-details-card">
+        <img
+          src={
+            coffee.image ||
+            'https://via.placeholder.com/200x200.png?text=No+Image'
+          }
+          alt={coffee.title}
+          width="200"
+        />
+        <div className="coffee-info">
+          <h2>{coffee.title}</h2>
+          <h3>Description</h3>
+          <p>{coffee.description}</p>
+          <h3>Ingredients</h3>
+          <ul>
+            {coffee.ingredients.map((ing, index) => (
+              <li key={index}>{ing}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CoffeeDetails;
+
 // import React, { useState, useEffect, Suspense, useRef } from 'react';
 // import {
 //   useParams,
